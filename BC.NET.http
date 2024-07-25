@@ -1,0 +1,6 @@
+@BC.NET_HostAddress = http://localhost:5146
+
+GET {{BC.NET_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
