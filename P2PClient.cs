@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Net;
+using System.Text.Json;
 using WebSocket4Net;
 
 namespace BlockChain
@@ -8,12 +9,10 @@ namespace BlockChain
         private List<string> addresses;
         private Blockchain bc;
         private List<WebSocket> sockets = new List<WebSocket>();
-
-
-        public P2PClient(Blockchain bc, List<string> addrs)
+        public P2PClient(Blockchain bc, List<string> addresses)
         {
             this.bc = bc;
-            this.addresses = addrs;
+            this.addresses = addresses;
         }
 
         public void ConnectToPeers()
@@ -32,8 +31,9 @@ namespace BlockChain
                 socket.MessageReceived += (sender, e) =>
                 {
                     Blockchain? data = JsonSerializer.Deserialize<Blockchain>(e.Message);
-                    Console.WriteLine($"Chain received");
+                    Console.WriteLine($"Client received chain");
                     this.bc.ReplaceChain(data);
+
                 };
 
                 socket.Error += (sender, e) =>
@@ -61,7 +61,6 @@ namespace BlockChain
         {
             foreach (WebSocket socket in this.sockets)
             {
-
                 SendChain(socket);
             }
         }

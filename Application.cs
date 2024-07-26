@@ -6,12 +6,11 @@ namespace BlockChain
     {
         private static Blockchain blockchain = new Blockchain();
         private static List<string> addrs = new List<string>();
-        private static int p2pPort = 5001;
-        private static int webAppPort = 5000;
         private static P2PServer p2p;
         private static P2PClient client;
         private static WebApp app;
-
+        private static string p2pURL;
+        private static string webAppURL;
         static Application()
         {
             
@@ -22,23 +21,23 @@ namespace BlockChain
             InitVars(args);
             p2p.Listen();
             client.ConnectToPeers();
+            ChainUpdatedThread();
             app.Run();
         }
 
         private static void InitVars(string[] args)
         {
-            webAppPort = Convert.ToInt32(GetArgs(args[0], @"--web:(\d+)"));
-            p2pPort = Convert.ToInt32(GetArgs(args[1], @"--p2p:(\d+)"));
-
+            webAppURL = GetArgs(args[0], @"--web:([^:]+:\d+)");
+            p2pURL = GetArgs(args[1], @"--p2p:([^:]+:\d+)");
 
             for (int i = 2; i < args.Length; i++)
             {
                 addrs.Add(args[i]);
             }
 
-            p2p = new P2PServer(blockchain, p2pPort);
+            p2p = new P2PServer(blockchain, p2pURL);
             client = new P2PClient(blockchain, addrs);
-            app = new WebApp(blockchain, p2p, client, webAppPort);
+            app = new WebApp(blockchain, p2p, client, webAppURL);
         }
 
         private static string GetArgs(string input, string pattern)
@@ -53,6 +52,26 @@ namespace BlockChain
             else
             {
                 throw new Exception("Wrong input! Usage: dotnet run WEB_APP_PORT P2P_PORT ADDRESS1 ADDRESS2 .... ");
+            }
+        }
+
+        private static void ChainUpdatedThread()
+        {
+            Thread update = new Thread(new ThreadStart(UpdateChain));
+            update.Start();
+        }
+
+        private static void UpdateChain()
+        {
+            int len = blockchain.Chain.Count;
+            while (true)
+            {
+                if (blockchain.Chain.Count > len)
+                {
+                    len = blockchain.Chain.Count;
+                    p2p.SendToClients();
+                    client.SyncChains();
+                }
             }
         }
     }

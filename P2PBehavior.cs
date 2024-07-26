@@ -21,7 +21,7 @@ namespace BlockChain
         protected override void OnMessage(MessageEventArgs e)
         {
             Blockchain? data = JsonSerializer.Deserialize<Blockchain>(e.Data);
-            Console.WriteLine($"Received message: {e.Data}");
+            Console.WriteLine($"Server Received chain");
             this.bc.ReplaceChain(data);
         }
 

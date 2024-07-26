@@ -11,17 +11,16 @@ namespace BlockChain
 
         private WebApplication app;
         private Blockchain bc;
-        private readonly int port;
+        private readonly string url;
         private readonly P2PServer p2p;
         private readonly P2PClient client;
 
-        public WebApp(Blockchain bc, P2PServer p2p, P2PClient client, int port)
+        public WebApp(Blockchain bc, P2PServer p2p, P2PClient client, string url)
         {
             this.bc = bc;
             this.p2p = p2p;
             this.client = client;
-            this.port = port;
-
+            this.url = url;
             WebApplicationBuilder builder = WebApplication.CreateBuilder();
             app = builder.Build();
         }
@@ -58,7 +57,7 @@ namespace BlockChain
         public void Run()
         {
             Init();
-            app.Run($"http://localhost:{this.port}");
+            app.Run($"http://{url}");
         }
     }
 }

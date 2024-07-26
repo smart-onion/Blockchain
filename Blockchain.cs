@@ -12,7 +12,7 @@ namespace BlockChain
     {
         private List<Block> chain;
 
-        [JsonPropertyName("chain")]
+        //[JsonPropertyName("chain")]
         public List<Block> Chain { get => chain; }
 
         public Blockchain()
@@ -42,7 +42,7 @@ namespace BlockChain
             {
                 Block block = blockchain.chain[i];
                 Block lastBlock = blockchain.chain[i - 1];
-                if (block.LastHash != lastBlock.Hash || block.Hash != Block.GenerateHash(block.Timestamp, block.LastHash, block.Data, block.Nonce))
+                if (block.LastHash != lastBlock.Hash || block.Hash != Block.GenerateHash(block.Timestamp, block.LastHash, block.Data, block.Nonce, block.Difficulty))
                 {
                     return false;
                 }
@@ -51,21 +51,32 @@ namespace BlockChain
             return true;
         }
 
-        public void ReplaceChain(Blockchain newChain)
+        public bool ReplaceChain(Blockchain newChain)
         {
             if (newChain.chain.Count <= this.chain.Count)
             {
                 Console.WriteLine("Received chain is not longer than the current chain.");
-                return;
+                return false;
             }
 
             else if (!ChainIsValid(newChain))
             {
                 Console.WriteLine("The received chain is not valid.");
-                return;
+                return false;
             }
             Console.WriteLine("Replacing blockchain with new chain.");
             this.chain = newChain.chain;
+            return true;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            Blockchain b = (Blockchain)obj;
+            if (this.chain.Equals(b.chain))
+            {
+                return true;
+            }
+            return false;
         }
     }
 }
