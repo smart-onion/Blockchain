@@ -8,7 +8,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BlockChain
 {
-    public class Blockchain
+    public class Blockchain : ISendable
     {
         private List<Block> chain;
 

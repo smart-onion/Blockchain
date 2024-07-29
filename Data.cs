@@ -2,25 +2,21 @@
 
 namespace BlockChain
 {
-    public struct Data
+    public enum MessageType
     {
-        private Blockchain bc;
-        private List<string> connections;
-
-        public Blockchain Bc { get => this.bc; }
-        public List<string> Connections { get => this.connections; }
-
-
-        public Data()
-        {
-            this.bc = new Blockchain();
-            this.connections = new List<string>();
-        }
+        CHAIN,
+        TRANSACTION,
+        ADDRESS,
+    }
+    public class Data
+    {
+        public MessageType mt { get; set; }
+        public ISendable data { get; set; }
         [JsonConstructor]
-        public Data(Blockchain bc, List<string> connections)
+        public Data(MessageType mt, ISendable data)
         {
-            this.bc = bc;
-            this.connections = connections;
+            this.mt = mt;
+            this.data = data;
         }
     }
 }

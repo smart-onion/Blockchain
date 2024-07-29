@@ -4,40 +4,41 @@ namespace BlockChain
 {
     public static class Application
     {
+        private static Wallet wallet = new Wallet();
         private static Blockchain blockchain = new Blockchain();
-        private static List<string> addrs = new List<string>();
+        private static TransactionPool tp = new TransactionPool();
         private static P2PServer p2p;
-        private static P2PClient client;
         private static WebApp app;
-        private static string p2pURL;
-        private static string webAppURL;
-        static Application()
-        {
-            
-        }
+        private static P2PSharedData sharedData;
+
+        static Application() { }
 
         public static void Start(string[] args)
         {
             InitVars(args);
             p2p.Listen();
-            client.ConnectToPeers();
-            ChainUpdatedThread();
+            sharedData.Client.ConnectToPeers();
             app.Run();
         }
 
         private static void InitVars(string[] args)
         {
-            webAppURL = GetArgs(args[0], @"--web:([^:]+:\d+)");
-            p2pURL = GetArgs(args[1], @"--p2p:([^:]+:\d+)");
+
+            var webAppURL = GetArgs(args[0], @"--web:([^:]+:\d+)");
+            var p2pURL = GetArgs(args[1], @"--p2p:([^:]+:\d+)");
+            var addrs = new List<string>();
 
             for (int i = 2; i < args.Length; i++)
             {
                 addrs.Add(args[i]);
             }
 
-            p2p = new P2PServer(blockchain, p2pURL);
-            client = new P2PClient(blockchain, addrs);
-            app = new WebApp(blockchain, p2p, client, webAppURL);
+            sharedData = new P2PSharedData(blockchain, addrs, p2pURL);
+
+            sharedData.Client = new P2PClient(sharedData);
+            p2p = new P2PServer(sharedData);
+
+            app = new WebApp(blockchain, p2p, sharedData.Client, webAppURL, wallet, tp);
         }
 
         private static string GetArgs(string input, string pattern)
@@ -52,26 +53,6 @@ namespace BlockChain
             else
             {
                 throw new Exception("Wrong input! Usage: dotnet run WEB_APP_PORT P2P_PORT ADDRESS1 ADDRESS2 .... ");
-            }
-        }
-
-        private static void ChainUpdatedThread()
-        {
-            Thread update = new Thread(new ThreadStart(UpdateChain));
-            update.Start();
-        }
-
-        private static void UpdateChain()
-        {
-            int len = blockchain.Chain.Count;
-            while (true)
-            {
-                if (blockchain.Chain.Count > len)
-                {
-                    len = blockchain.Chain.Count;
-                    p2p.SendToClients();
-                    client.SyncChains();
-                }
             }
         }
     }
