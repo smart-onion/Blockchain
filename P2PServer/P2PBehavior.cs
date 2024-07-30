@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using WebSocketSharp;
 using WebSocketSharp.Server;
+using Serilog;
 
 namespace BlockChain
 {
@@ -14,34 +15,31 @@ namespace BlockChain
 
         protected override void OnError(WebSocketSharp.ErrorEventArgs e)
         {
-            Console.WriteLine("Opps from server");
+            Serilog.Log.Error("Ops from server");
         }
 
         protected override void OnMessage(MessageEventArgs e)
         {
-            Data? data = JsonSerializer.Deserialize<Data>(e.Data, new JsonSerializerOptions
-            {
-                Converters = { new ISendableConverter() },
-                WriteIndented = true
-            });
+            Data? data = JsonSerializer.Deserialize<Data>(e.Data);
 
-            Console.WriteLine("Server side message: " + data.mt);
+            Serilog.Log.Information("Server side message: " + data.mt);
             switch (data?.mt)
             {
                 case MessageType.CHAIN:
+                    var chain = JsonSerializer.Deserialize<Blockchain>(data.data);
+                    Serilog.Log.Information("Server received new chain.");
+                    sharedData.Bc.ReplaceChain(chain);
                     break;
                 case MessageType.TRANSACTION:
-                    break;
-                case MessageType.ADDRESS:
-                    sharedData.Addresses.AddAddress((WsAddresses)data.data);
-                    sharedData.Client.ConnectToPeers();
+                    var transaction = JsonSerializer.Deserialize<Transaction>(data.data);
+                    Serilog.Log.Information("Server received new transaction.");
+                    sharedData.TransactionPool.UpdateOrAddTransaction(transaction);
                     break;
                 default:
                     break;
             }
 
             /*            Blockchain? data = JsonSerializer.Deserialize<Blockchain>(e.Data);
-                        Console.WriteLine($"Server Received chain");
                         this.bc.ReplaceChain(data);*/
         }
 
@@ -49,19 +47,14 @@ namespace BlockChain
         {
             try
             {
-                Console.WriteLine("New connection established.");
-                if (!sharedData.Addresses.Addresses.Contains(sharedData.MyAddress))
-                {
-                    sharedData.Addresses.Addresses.Add($"ws://{sharedData.MyAddress}");
-                }
-                SendAddresses();
-
-
+                Serilog.Log.Information("New connection established.");
+                SendData<Blockchain>(MessageType.CHAIN, sharedData.Bc);
+                SendData<TransactionPool>(MessageType.TRANSACTION, sharedData.TransactionPool);
             }
             catch (Exception ex)
             {
 
-                Console.WriteLine($"Error on connection open: {ex.Message}");
+                Serilog.Log.Error($"Error on connection open: {ex.Message}");
             }
             
         }
@@ -70,23 +63,18 @@ namespace BlockChain
         {
             try
             {
-                //ar clientAddress = Context?.UserEndPoint?.ToString();
-                Console.WriteLine($"Connection closed: ");
+                var clientAddress = Context?.UserEndPoint?.ToString();
+                Serilog.Log.Information($"Connection closed: {clientAddress}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error on connection close: {ex.Message}");
+                Serilog.Log.Error($"Error on connection close: {ex.Message}");
             }
-
         }
 
-        private void SendAddresses()
+        private void SendData<T>(MessageType type, ISendable<T> data)
         {
-            Send(JsonSerializer.Serialize(new Data(MessageType.ADDRESS, sharedData.Addresses), new JsonSerializerOptions
-            {
-                Converters = { new ISendableConverter() },
-                WriteIndented = true
-            }));
+            Send(JsonSerializer.Serialize(new Data(type, data.Serialize())));
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using Serilog;
 
 namespace BlockChain
 {
@@ -8,6 +9,7 @@ namespace BlockChain
         private static Blockchain blockchain = new Blockchain();
         private static TransactionPool tp = new TransactionPool();
         private static P2PServer p2p;
+        private static P2PClient client;
         private static WebApp app;
         private static P2PSharedData sharedData;
 
@@ -17,7 +19,7 @@ namespace BlockChain
         {
             InitVars(args);
             p2p.Listen();
-            sharedData.Client.ConnectToPeers();
+            client.ConnectToPeers();
             app.Run();
         }
 
@@ -33,12 +35,16 @@ namespace BlockChain
                 addrs.Add(args[i]);
             }
 
-            sharedData = new P2PSharedData(blockchain, addrs, p2pURL);
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .CreateLogger();
+            
+            sharedData = new P2PSharedData(blockchain, tp, addrs, p2pURL);
 
-            sharedData.Client = new P2PClient(sharedData);
+            client = new P2PClient(sharedData);
             p2p = new P2PServer(sharedData);
 
-            app = new WebApp(blockchain, p2p, sharedData.Client, webAppURL, wallet, tp);
+            app = new WebApp(blockchain, p2p, client, webAppURL, wallet, tp);
         }
 
         private static string GetArgs(string input, string pattern)

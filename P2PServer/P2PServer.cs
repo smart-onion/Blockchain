@@ -1,12 +1,13 @@
 ﻿//using System.Net.WebSockets;
 using System.Text.Json;
 using WebSocketSharp.Server;
-
+using Serilog;
 namespace BlockChain
 {
     public class P2PServer
     {
         private P2PSharedData sharedData;
+        private WebSocketServer server;
         public P2PServer(P2PSharedData sharedData)
         {
             this.sharedData = sharedData;
@@ -14,11 +15,11 @@ namespace BlockChain
 
         public void Listen()
         {
-            sharedData.Server = new WebSocketServer($"ws://{sharedData.MyAddress}");
-            sharedData.Server.AddWebSocketService<P2PBehavior>("/", () => new P2PBehavior(sharedData));
+            server = new WebSocketServer($"ws://{sharedData.MyAddress}");
+            server.AddWebSocketService<P2PBehavior>("/", () => new P2PBehavior(sharedData));
 
-            sharedData.Server.Start();
-            Console.WriteLine($"WebSocket server started at ws://{sharedData.MyAddress}");
+            server.Start();
+            Serilog.Log.Information($"WebSocket server started at ws://{sharedData.MyAddress}");
         }
 
         public static void SendToClients(Data dataToSend, WebSocketServer server)
@@ -32,9 +33,9 @@ namespace BlockChain
 
         public void SendToClients(Data dataToSend)
         {
-            foreach (var path in sharedData.Server.WebSocketServices.Paths)
+            foreach (var path in server.WebSocketServices.Paths)
             {
-                var service = sharedData.Server.WebSocketServices[path].Sessions;
+                var service = server.WebSocketServices[path].Sessions;
                 service.Broadcast(JsonSerializer.Serialize(dataToSend));
             }
         }

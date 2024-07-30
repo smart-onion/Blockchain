@@ -8,22 +8,18 @@ namespace BlockChain
     {
 
         public string MyAddress { get; set; }
-        public WsAddresses Addresses { get; set; }
-        public HashSet<string> ConnectedAddresses { get; set; }
+        public List<string> Addresses { get; set; }
         public Blockchain Bc { get; set; }
+        public TransactionPool TransactionPool { get; set; }
         public List<WebSocket> Sockets { get; set; }
 
-        public WebSocketServer Server { get; set; }
-        public P2PClient Client { get; set; }
-
-        public P2PSharedData(Blockchain bc, List<string> addresses, string myAddress)
+        public P2PSharedData(Blockchain bc, TransactionPool tp, List<string> addresses, string myAddress)
         {
             this.MyAddress = myAddress;
-            this.Addresses = new WsAddresses(addresses);
-            this.ConnectedAddresses = new HashSet<string>();
             this.Sockets = new List<WebSocket>();
             this.Bc = bc;
-
+            this.TransactionPool = tp;
+            this.Addresses = addresses;
         }
 
 

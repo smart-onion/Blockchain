@@ -1,9 +1,10 @@
 ﻿using System.Security.Cryptography;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace BlockChain
 {
-    public class Transaction : ISendable
+    public class Transaction : ISendable<Transaction>
     {
         private string id;
         TransactionInput input;
@@ -33,7 +34,7 @@ namespace BlockChain
 
             if (amount > senderWallet.Balance)
             {
-                Console.WriteLine($"Amount: {amount} exceed balance.");
+                Serilog.Log.Information($"Amount: {amount} exceed balance.");
                 return null;
             }
 
@@ -49,7 +50,7 @@ namespace BlockChain
             Transaction transaction = new Transaction();
             if (amount > senderWallet.Balance)
             {
-                Console.WriteLine($"Amount: {amount} exceeds balance");
+                Serilog.Log.Information($"Amount: {amount} exceeds balance");
                 return null;
             }
 
@@ -75,5 +76,11 @@ namespace BlockChain
                                                 transaction.Input.Signature, 
                                                 TransactionOutput.GetOutputHash(transaction.Output));
         }
+
+        public string Serialize()
+        {
+            return JsonSerializer.Serialize(this);
+        }
+
     }
 }

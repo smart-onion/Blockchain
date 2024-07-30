@@ -15,57 +15,45 @@ namespace BlockChain
 
         public void ConnectToPeer(string address)
         {
-            if (sharedData.ConnectedAddresses.Contains(address)) return;
-
             WebSocket socket = new WebSocket(address + "/");
 
             socket.Opened += async (sender, e) =>
             {
-                Console.WriteLine($"Open socket on {address}");
-                //SendAddress(socket); 
-                sharedData.ConnectedAddresses.Add(address);
-                await Task.Delay(500); // 500 ms delay
+                Serilog.Log.Information($"Open socket on {address}");
             };
-
 
             socket.MessageReceived += (sender, e) =>
             {
 
-                Data? data = JsonSerializer.Deserialize<Data>(e.Message, new JsonSerializerOptions
-                {
-                    Converters = { new ISendableConverter() },
-                    WriteIndented = true
-                });
+                Data? data = JsonSerializer.Deserialize<Data>(e.Message);
 
-                Console.WriteLine("Message received: " + data.mt);
+                Serilog.Log.Information("Message received: " + data.mt);
                 switch (data?.mt)
                 {
                     case MessageType.CHAIN:
+                        var chain = JsonSerializer.Deserialize<Blockchain>(data.data);
+                        Serilog.Log.Information("Server received new chain.");
+                        sharedData.Bc.ReplaceChain(chain);
                         break;
                     case MessageType.TRANSACTION:
-                        break;
-                    case MessageType.ADDRESS:
-                        sharedData.Addresses.AddAddress((WsAddresses)data.data);
-                        P2PServer.SendToClients(new Data(MessageType.ADDRESS, sharedData.Addresses), sharedData.Server);
-                        ConnectToPeers();
+                        var transaction = JsonSerializer.Deserialize<Transaction>(data.data);
+                        Serilog.Log.Information("Server received new transaction.");
+                        sharedData.TransactionPool.UpdateOrAddTransaction(transaction);
                         break;
                     default:
                         break;
                 };
             };
 
-
             socket.Error += (sender, e) =>
             {
-                Console.WriteLine("Error on socket");
-                sharedData.ConnectedAddresses.Remove(address);
+                Serilog.Log.Error("Error on socket");
 
             };
 
             socket.Closed += (sender, e) =>
             {
-                Console.WriteLine($"Connection close on {address}");
-                sharedData.ConnectedAddresses.Remove(address);
+                Serilog.Log.Information($"Connection close on {address}");
 
             };
             socket.Open();
@@ -74,27 +62,21 @@ namespace BlockChain
 
         public void ConnectToPeers()
         {
-            foreach (string address in sharedData.Addresses.Addresses)
+            foreach (string address in sharedData.Addresses)
             {
-                if (address == $"ws://{sharedData.MyAddress}" || sharedData.ConnectedAddresses.Contains(address))
-                {
-                    continue; // Skip if it's the same as my address or already connected
-                }
-
                 ConnectToPeer(address);
             }
         }
 
-        
-
         private void SendChain(WebSocket socket)
         {
-            socket.Send(JsonSerializer.Serialize(new Data(MessageType.CHAIN, sharedData.Bc)));
+            socket.Send(JsonSerializer.Serialize(new Data(MessageType.CHAIN, sharedData.Bc.Serialize())));
         }
 
         private void SendTransaction(WebSocket socket, Transaction transaction)
         {
-            socket.Send(JsonSerializer.Serialize(new Data(MessageType.TRANSACTION, transaction)));
+            socket.Send(JsonSerializer.Serialize(new Data(MessageType.TRANSACTION, transaction.Serialize())));
+            
         }
 
         public void BroadcastTransactions(Transaction transaction)

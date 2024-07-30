@@ -1,8 +1,10 @@
-﻿using System.Security.Cryptography;
+﻿using System.Runtime.Serialization;
+using System.Security.Cryptography;
+using System.Text.Json;
 
 namespace BlockChain
 {
-    public class TransactionPool
+    public class TransactionPool : ISendable<TransactionPool>
     {
         List<Transaction> transactions;
 
@@ -32,6 +34,11 @@ namespace BlockChain
         {
             return this.transactions.Find(t => t.Input.Address.Equals(address));
 
+        }
+
+        public string Serialize()
+        {
+            return JsonSerializer.Serialize(this);
         }
     }
 }

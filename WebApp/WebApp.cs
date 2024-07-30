@@ -62,7 +62,7 @@ namespace BlockChain
                 
                 Block block = this.bc.AddBlock(data.data);
                 await Console.Out.WriteLineAsync($"New block added: {block}");
-                p2p.SendToClients(new BlockChain.Data(MessageType.CHAIN, this.bc));
+                p2p.SendToClients(new BlockChain.Data(MessageType.CHAIN, this.bc.Serialize()));
                 client.SyncChains();
                 Results.Redirect("/blocks");
             });

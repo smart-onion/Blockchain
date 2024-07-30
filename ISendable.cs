@@ -4,12 +4,14 @@ using System.Text.Json.Serialization;
 
 namespace BlockChain
 {
-    public interface ISendable
+    public interface ISendable<T>
     {
-
+        public string Serialize();
     }
 
-    public class ISendableConverter : JsonConverter<ISendable>
+
+
+    /*public class ISendableConverter : JsonConverter<ISendable>
     {
         public override ISendable? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
@@ -45,6 +47,6 @@ namespace BlockChain
 
             writer.WriteEndObject();
         }
-    }
+    }*/
 }
 

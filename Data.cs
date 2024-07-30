@@ -11,9 +11,9 @@ namespace BlockChain
     public class Data
     {
         public MessageType mt { get; set; }
-        public ISendable data { get; set; }
+        public string data { get; set; }
         [JsonConstructor]
-        public Data(MessageType mt, ISendable data)
+        public Data(MessageType mt, string data)
         {
             this.mt = mt;
             this.data = data;

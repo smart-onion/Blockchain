@@ -37,3 +37,5 @@ C:\Users\fff\source\repos\BC.NET\bin\Debug\net8.0\System.Security.Cryptography.P
 C:\Users\fff\source\repos\BC.NET\bin\Debug\net8.0\WebApp\appsettings.Development.json
 C:\Users\fff\source\repos\BC.NET\bin\Debug\net8.0\WebApp\appsettings.json
 C:\Users\fff\source\repos\BC.NET\bin\Debug\net8.0\WebApp\Properties\launchSettings.json
+C:\Users\fff\source\repos\BC.NET\bin\Debug\net8.0\Serilog.dll
+C:\Users\fff\source\repos\BC.NET\bin\Debug\net8.0\Serilog.Sinks.Console.dll

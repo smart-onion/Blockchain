@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
-
+using Serilog;
 namespace BlockChain
 {
-    public class Blockchain : ISendable
+    public class Blockchain : ISendable<Blockchain>
     {
         private List<Block> chain;
 
@@ -55,28 +56,34 @@ namespace BlockChain
         {
             if (newChain.chain.Count <= this.chain.Count)
             {
-                Console.WriteLine("Received chain is not longer than the current chain.");
+               Serilog.Log.Information("Received chain is not longer than the current chain.");
                 return false;
             }
 
             else if (!ChainIsValid(newChain))
             {
-                Console.WriteLine("The received chain is not valid.");
+                Serilog.Log.Information("The received chain is not valid.");
                 return false;
             }
-            Console.WriteLine("Replacing blockchain with new chain.");
+            Serilog.Log.Information("Replacing blockchain with new chain.");
             this.chain = newChain.chain;
             return true;
         }
 
         public override bool Equals(object? obj)
         {
-            Blockchain b = (Blockchain)obj;
-            if (this.chain.Equals(b.chain))
+            Blockchain? b = (Blockchain?)obj;
+            if (this.chain.Equals(b?.chain))
             {
                 return true;
             }
             return false;
         }
+
+        public string Serialize()
+        {
+            return JsonSerializer.Serialize(this);
+        }
+
     }
 }

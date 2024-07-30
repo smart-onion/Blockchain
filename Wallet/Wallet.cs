@@ -1,7 +1,7 @@
 ﻿
 using System.Security.Cryptography;
 using System.Text;
-
+using Serilog;
 namespace BlockChain
 {
     public class Wallet
@@ -24,7 +24,7 @@ namespace BlockChain
         {
             if (amount > this.balance)
             {
-                Console.WriteLine($"Amount: {amount} exceed current balance: {this.balance}");
+                Serilog.Log.Information($"Amount: {amount} exceed current balance: {this.balance}");
                 return null;
             }
             Transaction? transaction = tranPool.ExistedTransaction(this.publicKey);
