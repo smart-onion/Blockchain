@@ -3,17 +3,31 @@ using System.Text.Json;
 
 namespace BlockChain
 {
+    /// <summary>
+    /// Represents a pair of elliptic curve cryptographic (ECC) keys.
+    /// </summary>
     public class KeyPair
     {
         ECDsa keys;
 
+        /// <summary>
+        /// Gets the ECDsa keys associated with this KeyPair.
+        /// </summary>
         public ECDsa Keys { get => this.keys; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="KeyPair"/> class with a new set of ECC keys.
+        /// </summary>
         public KeyPair()
         {
             this.keys = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         }
 
+        /// <summary>
+        /// Gets the public key in a serialized string format.
+        /// </summary>
+        /// <param name="key">The ECParameters representing the key.</param>
+        /// <returns>A string representation of the public key.</returns>
         public static string GetPublicKey(ECParameters key)
         {
             string curveName = key.Curve.Oid.FriendlyName;
@@ -22,6 +36,12 @@ namespace BlockChain
             return $"{curveName}:{x}:{y}";
         }
 
+        /// <summary>
+        /// Parses a JSON-encoded public key and returns its ECParameters representation.
+        /// </summary>
+        /// <param name="jsonKey">The JSON-encoded public key.</param>
+        /// <returns>The ECParameters representing the key.</returns>
+        /// <exception cref="ArgumentException">Thrown when the key format is invalid.</exception>
         public static ECParameters GetECParameters(string jsonKey)
         {
             string[] parts = jsonKey.Split(':');
@@ -45,6 +65,13 @@ namespace BlockChain
             };
         }
 
+        /// <summary>
+        /// Verifies a digital signature using the given public key and data hash.
+        /// </summary>
+        /// <param name="keys">The ECParameters representing the public key.</param>
+        /// <param name="signature">The digital signature to verify.</param>
+        /// <param name="dataHash">The hash of the data that was signed.</param>
+        /// <returns><c>true</c> if the signature is valid; otherwise, <c>false</c>.</returns>
         public static bool VerifySignature(ECParameters keys, byte[] signature, byte[] dataHash)
         {
             try
@@ -63,12 +90,23 @@ namespace BlockChain
             }
         }
 
+        /// <summary>
+        /// Gets the public key as ECParameters from a <see cref="KeyPair"/> instance.
+        /// </summary>
+        /// <param name="keys">The KeyPair instance.</param>
+        /// <returns>The ECParameters representing the public key.</returns>
         public static ECParameters GetPublicKey(KeyPair keys)
         {
             return keys.Keys.ExportParameters(false);
 
         }
 
+        /// <summary>
+        /// Compares two ECParameters for equality.
+        /// </summary>
+        /// <param name="left">The first ECParameters to compare.</param>
+        /// <param name="right">The second ECParameters to compare.</param>
+        /// <returns><c>true</c> if both ECParameters are equal; otherwise, <c>false</c>.</returns>
         public static bool KeyAreEqual(ECParameters left, ECParameters right)
         {
             // Compare curve
@@ -86,6 +124,10 @@ namespace BlockChain
             return true;
         }
 
+        /// <summary>
+        /// Returns a string representation of the <see cref="KeyPair"/> object.
+        /// </summary>
+        /// <returns>A string representation of the <see cref="KeyPair"/> object.</returns>
         public override string ToString()
         {
             return base.ToString();

@@ -5,19 +5,35 @@ using Serilog;
 
 namespace BlockChain
 {
+    /// <summary>
+    /// Represents the behavior for handling WebSocket connections in the P2P network.
+    /// </summary>
     internal class P2PBehavior : WebSocketBehavior
     {
-        P2PSharedData sharedData;
+        private P2PSharedData sharedData;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="P2PBehavior"/> class with the specified shared data.
+        /// </summary>
+        /// <param name="sharedData">The shared data used across the P2P network.</param>
         public P2PBehavior(P2PSharedData sharedData)
         {
             this.sharedData = sharedData;
         }
 
+        /// <summary>
+        /// Handles errors that occur during WebSocket communication.
+        /// </summary>
+        /// <param name="e">The event arguments containing error information.</param>
         protected override void OnError(WebSocketSharp.ErrorEventArgs e)
         {
             Serilog.Log.Error("Ops from server");
         }
 
+        /// <summary>
+        /// Handles incoming messages from clients.
+        /// </summary>
+        /// <param name="e">The event arguments containing the received message.</param>
         protected override void OnMessage(MessageEventArgs e)
         {
             Data? data = JsonSerializer.Deserialize<Data>(e.Data);
@@ -38,27 +54,28 @@ namespace BlockChain
                 default:
                     break;
             }
-
-            /*            Blockchain? data = JsonSerializer.Deserialize<Blockchain>(e.Data);
-                        this.bc.ReplaceChain(data);*/
         }
 
+        /// <summary>
+        /// Handles the event when a new WebSocket connection is opened.
+        /// </summary>
         protected override void OnOpen()
         {
             try
             {
                 Serilog.Log.Information("New connection established.");
-                SendData<Blockchain>(MessageType.CHAIN, sharedData.Bc);
-                SendData<TransactionPool>(MessageType.TRANSACTION, sharedData.TransactionPool);
+                SendData(MessageType.CHAIN, sharedData.Bc);
             }
             catch (Exception ex)
             {
-
                 Serilog.Log.Error($"Error on connection open: {ex.Message}");
             }
-            
         }
 
+        /// <summary>
+        /// Handles the event when a WebSocket connection is closed.
+        /// </summary>
+        /// <param name="e">The event arguments containing information about the closed connection.</param>
         protected override void OnClose(CloseEventArgs e)
         {
             try
@@ -72,9 +89,15 @@ namespace BlockChain
             }
         }
 
-        private void SendData<T>(MessageType type, ISendable<T> data)
+        /// <summary>
+        /// Sends data to the connected WebSocket client.
+        /// </summary>
+        /// <typeparam name="T">The type of the data being sent.</typeparam>
+        /// <param name="type">The type of the message.</param>
+        /// <param name="data">The data to be sent.</param>
+        private void SendData(MessageType type, ISendable data)
         {
-            Send(JsonSerializer.Serialize(new Data(type, data.Serialize())));
+            Send(JsonSerializer.Serialize(new Data(type, data)));
         }
     }
 }

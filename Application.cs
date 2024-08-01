@@ -3,6 +3,9 @@ using Serilog;
 
 namespace BlockChain
 {
+    /// <summary>
+    /// Provides the main entry point for the blockchain application and manages initialization and startup.
+    /// </summary>
     public static class Application
     {
         private static Wallet wallet = new Wallet();
@@ -13,8 +16,10 @@ namespace BlockChain
         private static WebApp app;
         private static P2PSharedData sharedData;
 
-        static Application() { }
-
+        /// <summary>
+        /// Initializes the static properties and starts the application.
+        /// </summary>
+        /// <param name="args">Command-line arguments for application configuration.</param>
         public static void Start(string[] args)
         {
             InitVars(args);
@@ -23,9 +28,12 @@ namespace BlockChain
             app.Run();
         }
 
+        /// <summary>
+        /// Initializes variables and configurations for the application.
+        /// </summary>
+        /// <param name="args">Command-line arguments for application configuration.</param>
         private static void InitVars(string[] args)
         {
-
             var webAppURL = GetArgs(args[0], @"--web:([^:]+:\d+)");
             var p2pURL = GetArgs(args[1], @"--p2p:([^:]+:\d+)");
             var addrs = new List<string>();
@@ -38,7 +46,7 @@ namespace BlockChain
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console()
                 .CreateLogger();
-            
+
             sharedData = new P2PSharedData(blockchain, tp, addrs, p2pURL);
 
             client = new P2PClient(sharedData);
@@ -47,6 +55,13 @@ namespace BlockChain
             app = new WebApp(blockchain, p2p, client, webAppURL, wallet, tp);
         }
 
+        /// <summary>
+        /// Extracts a specific value from a string using a regular expression pattern.
+        /// </summary>
+        /// <param name="input">The input string to search.</param>
+        /// <param name="pattern">The regular expression pattern to use for extraction.</param>
+        /// <returns>The extracted value if the pattern matches; otherwise, throws an exception.</returns>
+        /// <exception cref="Exception">Thrown when the input string does not match the pattern.</exception>
         private static string GetArgs(string input, string pattern)
         {
             Regex regex = new Regex(pattern);
@@ -54,7 +69,7 @@ namespace BlockChain
 
             if (match.Success)
             {
-                return  match.Groups[1].Value;
+                return match.Groups[1].Value;
             }
             else
             {

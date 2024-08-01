@@ -2,6 +2,10 @@ using BlockChain;
 
 internal class Program
 {
+    /// <summary>
+    /// Test docfx
+    /// </summary>
+    /// <param name="args"></param>
     private static void Main(string[] args)
     {
         if (args.Length == 0)
