@@ -4558,11 +4558,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\fff\\source\\repos\\BC.NET\\BC.NET.csproj",
+      "projectUniqueName": "C:\\Users\\fff\\Documents\\GitHub\\Blockchain\\BC.NET.csproj",
       "projectName": "BC.NET",
-      "projectPath": "C:\\Users\\fff\\source\\repos\\BC.NET\\BC.NET.csproj",
+      "projectPath": "C:\\Users\\fff\\Documents\\GitHub\\Blockchain\\BC.NET.csproj",
       "packagesPath": "C:\\Users\\fff\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\fff\\source\\repos\\BC.NET\\obj\\",
+      "outputPath": "C:\\Users\\fff\\Documents\\GitHub\\Blockchain\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\fff\\AppData\\Roaming\\NuGet\\NuGet.Config",

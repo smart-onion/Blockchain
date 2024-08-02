@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "BJBTE0WX9WcNHJaaKNtRJZamyAMUh3YNIuOCoUwAJvTg0h/NISn8jaQypWXd4YwspNmK8yM9UrnUTLZ16053dQ==",
+  "dgSpecHash": "YKbZYajouWtvh65V0BrNeYvHTS0AUoC3WhSuV7DFN73LGjKLPZ+SmfhyVwo8b4+PQHFPcwkDvQAIo7k0KddjPg==",
   "success": true,
-  "projectFilePath": "C:\\Users\\fff\\source\\repos\\BC.NET\\BC.NET.csproj",
+  "projectFilePath": "C:\\Users\\fff\\Documents\\GitHub\\Blockchain\\BC.NET.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\fff\\.nuget\\packages\\microsoft.aspnetcore.openapi\\8.0.1\\microsoft.aspnetcore.openapi.8.0.1.nupkg.sha512",
     "C:\\Users\\fff\\.nuget\\packages\\microsoft.extensions.apidescription.server\\6.0.5\\microsoft.extensions.apidescription.server.6.0.5.nupkg.sha512",

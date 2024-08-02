@@ -63,9 +63,13 @@ namespace BlockChain
 
         private void Publish(string channel, DataToSend message)
         {
-            var messageToSend = message.Data;
+            var messageToSend = JsonSerializer.Serialize(message);
+            //subscriber.Unsubscribe(channel);
             publisher.Publish(channel, messageToSend);
+            //subscriber.Subscribe(channel);
         }
+
+
 
         public void BroadcastChain()
         {
@@ -76,10 +80,11 @@ namespace BlockChain
         {
             if (Channels.ROOT.Equals("ROOT"))
             {
-                subscriber.Subscribe(Channels.NEW_CLIENT);
-
-                Serilog.Log.Information("A new subscriber has connected");
-                BroadcastChain();
+                subscriber.Subscribe(Channels.NEW_CLIENT, (ch, msg) =>
+                {
+                    Serilog.Log.Information("A new subscriber has connected");
+                    BroadcastChain();
+                });
 
             }
             publisher.Publish(Channels.NEW_CLIENT, Channels.NEW_CLIENT);
