@@ -38,7 +38,7 @@ namespace BlockChain
 
             if (webAppURL.Equals("localhost:3000")) Channels.ROOT = "ROOT";
 
-            pubsub = new PubSub(blockchain);
+            pubsub = new PubSub(blockchain, tp);
 
             app = new WebApp(blockchain, pubsub, webAppURL, wallet, tp);
         }

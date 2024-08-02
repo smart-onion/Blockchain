@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using Microsoft.AspNetCore.Http;
+using System.Text.Json;
 
 namespace BlockChain
 {
@@ -96,7 +97,7 @@ namespace BlockChain
                 Block block = this.bc.AddBlock(data.data);
                 await Console.Out.WriteLineAsync($"New block added: {block}");
                 publisher.BroadcastChain();
-                Results.Redirect("/blocks");
+                context.Response.Redirect("/blocks");
             });
 
             app.MapPost("/transact", async context =>
@@ -106,9 +107,11 @@ namespace BlockChain
 
                 if (transaction == null)
                 {
-                    await Console.Out.WriteLineAsync($"Amount: {data.amount} exceed balance");
+                    context.Response.WriteAsync($"Amount: {data.amount} exceed balance");
+                    return;
                 }
-                Results.Redirect("/transactions");
+                publisher.BroadcastTransaction(transaction);
+                context.Response.Redirect("/transactions");
             });
 
         }

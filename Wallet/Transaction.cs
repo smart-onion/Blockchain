@@ -113,18 +113,7 @@ namespace BlockChain
                                                      senderWallet.Sign(TransactionOutput.GetOutputHash(transaction.Output)));
         }
 
-        /// <summary>
-        /// Verifies the signature of the specified transaction.
-        /// </summary>
-        /// <param name="transaction">The transaction to be verified.</param>
-        /// <returns><c>true</c> if the transaction is valid; otherwise, <c>false</c>.</returns>
-        public static bool VerifyTransaction(Transaction? transaction)
-        {
-            if (transaction == null) return false;
-            return KeyPair.VerifySignature(KeyPair.GetECParameters(transaction.Input.Address), 
-                                                transaction.Input.Signature, 
-                                                TransactionOutput.GetOutputHash(transaction.Output));
-        }
+        
 
         /// <summary>
         /// Serializes the transaction to a JSON string.

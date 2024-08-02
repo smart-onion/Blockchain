@@ -31,13 +31,15 @@ namespace BlockChain
         private ISubscriber publisher = redis.GetSubscriber();
         private ISubscriber subscriber = redis.GetSubscriber();
         private Blockchain bc;
+        private TransactionPool transactionPool;
         private string id;
         public ISubscriber Publisher { get => this.publisher; }
         public ISubscriber Subscriber { get => this.subscriber; }
-        public PubSub(Blockchain bc)
+        public PubSub(Blockchain bc, TransactionPool transactionPool)
         {
             id = ChainUtility.GetUniqueID();
             this.bc = bc;
+            this.transactionPool = transactionPool;
             SubscribeToChannels();
             PublishToNewSubscriber();
         }
@@ -45,10 +47,15 @@ namespace BlockChain
         private void SubscribeToChannels()
         {
             subscriber.Subscribe(Channels.CHAIN, OnChainReceived);
+            subscriber.Subscribe(Channels.TRANSACTION, OnTransactionReceived);
         }
 
-        private void OnConnected(RedisChannel channel, RedisValue message)
+        private void OnTransactionReceived(RedisChannel channel, RedisValue message)
         {
+            var data = JsonSerializer.Deserialize<DataToSend>(message);
+            if (data.ID == this.id) return;
+            Transaction transaction = JsonSerializer.Deserialize<Transaction>(data.Data);
+            transactionPool.UpdateOrAddTransaction(transaction);
         }
         private void OnChainReceived(RedisChannel channel, RedisValue message)
         {
@@ -64,9 +71,7 @@ namespace BlockChain
         private void Publish(string channel, DataToSend message)
         {
             var messageToSend = JsonSerializer.Serialize(message);
-            //subscriber.Unsubscribe(channel);
             publisher.Publish(channel, messageToSend);
-            //subscriber.Subscribe(channel);
         }
 
 
@@ -74,6 +79,11 @@ namespace BlockChain
         public void BroadcastChain()
         {
              Publish(Channels.CHAIN, new DataToSend(id, bc));
+        }
+
+        public void BroadcastTransaction(Transaction transaction)
+        {
+            Publish(Channels.TRANSACTION, new DataToSend(id, transaction));
         }
 
         private void PublishToNewSubscriber()

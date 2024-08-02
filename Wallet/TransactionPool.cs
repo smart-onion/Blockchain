@@ -9,19 +9,20 @@ namespace BlockChain
     /// </summary>
     public class TransactionPool
     {
-        private List<Transaction> transactions;
+        private Dictionary<string, Transaction> transactions;
 
+        public Dictionary<string, Transaction> Transactions => this.transactions;
         /// <summary>
         /// Gets the list of transactions in the pool.
         /// </summary>
-        public List<Transaction> Transactions => this.transactions;
+        //public List<Transaction> Transactions => this.transactions;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TransactionPool"/> class.
         /// </summary>
         public TransactionPool()
         {
-            this.transactions = new List<Transaction>();
+            this.transactions = new Dictionary<string, Transaction>();
         }
 
         /// <summary>
@@ -30,7 +31,9 @@ namespace BlockChain
         /// <param name="transaction">The transaction to be added or updated.</param>
         public void UpdateOrAddTransaction(Transaction transaction)
         {
-            Transaction? transactionWithID = this.transactions.Find(t => t.ID == transaction.ID);
+            this.transactions[transaction.ID] = transaction;
+
+            /*Transaction? transactionWithID = this.transactions.Find(t => t.ID == transaction.ID);
 
             if (transactionWithID != null)
             {
@@ -39,7 +42,20 @@ namespace BlockChain
             else
             {
                 this.transactions.Add(transaction);
-            }
+            }*/
+        }
+
+        /// <summary>
+        /// Verifies the signature of the specified transaction.
+        /// </summary>
+        /// <param name="transaction">The transaction to be verified.</param>
+        /// <returns><c>true</c> if the transaction is valid; otherwise, <c>false</c>.</returns>
+        public static bool VerifyTransaction(Transaction? transaction)
+        {
+            if (transaction == null) return false;
+            return KeyPair.VerifySignature(KeyPair.GetECParameters(transaction.Input.Address),
+                                                transaction.Input.Signature,
+                                                TransactionOutput.GetOutputHash(transaction.Output));
         }
 
         /// <summary>
@@ -49,7 +65,7 @@ namespace BlockChain
         /// <returns>The existing transaction if found; otherwise, <c>null</c>.</returns>
         public Transaction? ExistedTransaction(string address)
         {
-            foreach (Transaction transaction in this.transactions)
+            foreach (Transaction transaction in this.transactions.Values)
             {
                 if (transaction.Input == null) continue;
                 if (transaction.Input.Address.Equals(address)) return transaction;
