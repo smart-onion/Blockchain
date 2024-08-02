@@ -1,45 +1,55 @@
 ﻿using System.Text.RegularExpressions;
+using Serilog;
 
 namespace BlockChain
 {
+    /// <summary>
+    /// Provides the main entry point for the blockchain application and manages initialization and startup.
+    /// </summary>
     public static class Application
     {
+        private static Wallet wallet = new Wallet();
         private static Blockchain blockchain = new Blockchain();
-        private static List<string> addrs = new List<string>();
-        private static P2PServer p2p;
-        private static P2PClient client;
+        private static TransactionPool tp = new TransactionPool();
         private static WebApp app;
-        private static string p2pURL;
-        private static string webAppURL;
-        static Application()
-        {
-            
-        }
+        private static PubSub pubsub;
 
+        /// <summary>
+        /// Initializes the static properties and starts the application.
+        /// </summary>
+        /// <param name="args">Command-line arguments for application configuration.</param>
         public static void Start(string[] args)
         {
             InitVars(args);
-            p2p.Listen();
-            client.ConnectToPeers();
-            ChainUpdatedThread();
             app.Run();
         }
 
+        /// <summary>
+        /// Initializes variables and configurations for the application.
+        /// </summary>
+        /// <param name="args">Command-line arguments for application configuration.</param>
         private static void InitVars(string[] args)
         {
-            webAppURL = GetArgs(args[0], @"--web:([^:]+:\d+)");
-            p2pURL = GetArgs(args[1], @"--p2p:([^:]+:\d+)");
+            var webAppURL = GetArgs(args[0], @"--web:([^:]+:\d+)");
 
-            for (int i = 2; i < args.Length; i++)
-            {
-                addrs.Add(args[i]);
-            }
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .CreateLogger();
 
-            p2p = new P2PServer(blockchain, p2pURL);
-            client = new P2PClient(blockchain, addrs);
-            app = new WebApp(blockchain, p2p, client, webAppURL);
+            if (webAppURL.Equals("localhost:3000")) Channels.ROOT = "ROOT";
+
+            pubsub = new PubSub(blockchain);
+
+            app = new WebApp(blockchain, pubsub, webAppURL, wallet, tp);
         }
 
+        /// <summary>
+        /// Extracts a specific value from a string using a regular expression pattern.
+        /// </summary>
+        /// <param name="input">The input string to search.</param>
+        /// <param name="pattern">The regular expression pattern to use for extraction.</param>
+        /// <returns>The extracted value if the pattern matches; otherwise, throws an exception.</returns>
+        /// <exception cref="Exception">Thrown when the input string does not match the pattern.</exception>
         private static string GetArgs(string input, string pattern)
         {
             Regex regex = new Regex(pattern);
@@ -47,31 +57,11 @@ namespace BlockChain
 
             if (match.Success)
             {
-                return  match.Groups[1].Value;
+                return match.Groups[1].Value;
             }
             else
             {
                 throw new Exception("Wrong input! Usage: dotnet run WEB_APP_PORT P2P_PORT ADDRESS1 ADDRESS2 .... ");
-            }
-        }
-
-        private static void ChainUpdatedThread()
-        {
-            Thread update = new Thread(new ThreadStart(UpdateChain));
-            update.Start();
-        }
-
-        private static void UpdateChain()
-        {
-            int len = blockchain.Chain.Count;
-            while (true)
-            {
-                if (blockchain.Chain.Count > len)
-                {
-                    len = blockchain.Chain.Count;
-                    p2p.SendToClients();
-                    client.SyncChains();
-                }
             }
         }
     }
