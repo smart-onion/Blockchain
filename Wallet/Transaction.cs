@@ -52,6 +52,13 @@ namespace BlockChain
             this.output = output;
         }
 
+        public static Transaction GetGenesisTransaction()
+        {
+            Transaction tr = new Transaction();
+            tr.id = "genesis-transaction";
+            return tr;
+        }
+
         /// <summary>
         /// Updates the transaction with a new amount and recipient, and signs it with the sender's wallet.
         /// </summary>
@@ -99,6 +106,14 @@ namespace BlockChain
             return transaction;
         }
 
+        public static Transaction RewardTransaction(Wallet minerWallet, Wallet blockchainWallet, int amount)
+        {
+            Transaction transaction = new Transaction();
+            transaction.Output.Add(new TransactionOutput(amount, minerWallet.PublicKey));
+            Transaction.SignTransaction(transaction, blockchainWallet);
+            return transaction;
+        }
+
         /// <summary>
         /// Signs the specified transaction with the sender's wallet.
         /// </summary>
@@ -113,7 +128,29 @@ namespace BlockChain
                                                      senderWallet.Sign(TransactionOutput.GetOutputHash(transaction.Output)));
         }
 
-        
+         /// <summary>
+        /// Verifies the signature of the specified transaction.
+        /// </summary>
+        /// <param name="transaction">The transaction to be verified.</param>
+        /// <returns><c>true</c> if the transaction is valid; otherwise, <c>false</c>.</returns>
+        public static bool VerifyTransaction(Transaction? transaction)
+        {
+            if (transaction == null) return false;
+
+            int total = 0;
+
+            foreach (var item in transaction.Output)
+            {
+                total += item.Amount;
+            }
+
+            if (transaction.Input.Amount != total) return false;
+
+
+            return KeyPair.VerifySignature(KeyPair.GetECParameters(transaction.Input.Address),
+                                                transaction.Input.Signature,
+                                                TransactionOutput.GetOutputHash(transaction.Output));
+        }
 
         /// <summary>
         /// Serializes the transaction to a JSON string.

@@ -32,30 +32,37 @@ namespace BlockChain
         public void UpdateOrAddTransaction(Transaction transaction)
         {
             this.transactions[transaction.ID] = transaction;
-
-            /*Transaction? transactionWithID = this.transactions.Find(t => t.ID == transaction.ID);
-
-            if (transactionWithID != null)
-            {
-                this.transactions[this.transactions.IndexOf(transactionWithID)] = transaction;
-            }
-            else
-            {
-                this.transactions.Add(transaction);
-            }*/
         }
 
-        /// <summary>
-        /// Verifies the signature of the specified transaction.
-        /// </summary>
-        /// <param name="transaction">The transaction to be verified.</param>
-        /// <returns><c>true</c> if the transaction is valid; otherwise, <c>false</c>.</returns>
-        public static bool VerifyTransaction(Transaction? transaction)
+       public List<Transaction> ValidTransactions()
         {
-            if (transaction == null) return false;
-            return KeyPair.VerifySignature(KeyPair.GetECParameters(transaction.Input.Address),
-                                                transaction.Input.Signature,
-                                                TransactionOutput.GetOutputHash(transaction.Output));
+
+            List<Transaction> validPool = new List<Transaction>();
+
+            foreach (var transaction in this.transactions.Values)
+            {
+                if (Transaction.VerifyTransaction(transaction))
+                {
+                    validPool.Add(transaction);
+                }
+            }
+            return validPool;
+        }
+
+        public void Clear()
+        {
+            this.transactions.Clear();
+        }
+
+        public void Clear(Blockchain bc)
+        {
+            foreach (Block block in bc.Chain)
+            {
+                if (this.transactions.ContainsKey(block.Data.ID))
+                {
+                    this.transactions.Remove(block.Data.ID);
+                }
+            }
         }
 
         /// <summary>

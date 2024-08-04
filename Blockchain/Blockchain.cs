@@ -14,6 +14,7 @@ namespace BlockChain
     /// </summary>
     public class Blockchain : ISendable
     {
+        public delegate void SuccessHandler();
         private List<Block> chain;
 
         /// <summary>
@@ -45,7 +46,7 @@ namespace BlockChain
         /// </summary>
         /// <param name="data">The data to be added to the new block.</param>
         /// <returns>The newly created block.</returns>
-        public Block AddBlock(string data)
+        public Block AddBlock(Transaction data)
         {
             Block lastBlock = this.chain[this.chain.Count - 1];
             Block newBlock = Block.MineBlock(lastBlock, data);
@@ -80,7 +81,7 @@ namespace BlockChain
         /// </summary>
         /// <param name="newChain">The new blockchain to replace the current one.</param>
         /// <returns><c>true</c> if the blockchain was successfully replaced; otherwise, <c>false</c>.</returns>
-        public bool ReplaceChain(Blockchain newChain)
+        public bool ReplaceChain(Blockchain newChain, SuccessHandler? onSuccess)
         {
             if (newChain.chain.Count <= this.chain.Count)
             {
@@ -92,6 +93,9 @@ namespace BlockChain
                 Serilog.Log.Information("The received chain is not valid.");
                 return false;
             }
+
+            onSuccess?.Invoke();
+
             Serilog.Log.Information("Replacing blockchain with new chain.");
             this.chain = newChain.chain;
             return true;

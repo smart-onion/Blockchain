@@ -63,7 +63,10 @@ namespace BlockChain
             if (data.ID == this.id) return;
 
             Blockchain bc = JsonSerializer.Deserialize<Blockchain>(data.Data);
-            this.bc.ReplaceChain(bc);
+            this.bc.ReplaceChain(bc, () =>
+            {
+                transactionPool.Clear(this.bc);
+            });
             Serilog.Log.Information("New chain received.");
 
         }

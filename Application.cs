@@ -13,7 +13,7 @@ namespace BlockChain
         private static TransactionPool tp = new TransactionPool();
         private static WebApp app;
         private static PubSub pubsub;
-
+        private static Miner miner;
         /// <summary>
         /// Initializes the static properties and starts the application.
         /// </summary>
@@ -38,9 +38,12 @@ namespace BlockChain
 
             if (webAppURL.Equals("localhost:3000")) Channels.ROOT = "ROOT";
 
+
             pubsub = new PubSub(blockchain, tp);
 
-            app = new WebApp(blockchain, pubsub, webAppURL, wallet, tp);
+            miner = new Miner(blockchain,tp,wallet, pubsub);
+
+            app = new WebApp(blockchain, pubsub, webAppURL, wallet, tp, miner);
         }
 
         /// <summary>

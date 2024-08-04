@@ -28,6 +28,7 @@ namespace BlockChain
         /// </summary>
         public byte[] Signature { get => this.signature; }
 
+        public double Timestamp { get => this.timestamp; }
         /// <summary>
         /// Initializes a new instance of the <see cref="TransactionInput"/> class.
         /// </summary>
@@ -40,6 +41,14 @@ namespace BlockChain
         /// <param name="address">The address associated with the transaction input.</param>
         /// <param name="signature">The signature associated with the transaction input.</param>
         [JsonConstructor]
+        public TransactionInput(int amount, string address, byte[] signature, double timestamp)
+        {
+            this.timestamp = timestamp;
+            this.amount = amount;
+            this.address = address;
+            this.signature = signature;
+        }
+
         public TransactionInput(int amount, string address, byte[] signature)
         {
             this.timestamp = DateTime.Now.Ticks / TimeSpan.TicksPerMicrosecond;

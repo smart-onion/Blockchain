@@ -11,5 +11,16 @@ namespace BlockChain
 
             return uuid.ToString();
         }
+
+        public static byte[] GetCryptoHash(string data)
+        {
+
+            // Create a SHA256 object
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                // Compute the hash of the input string
+                return sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(data));
+            }
+        }
     }
 }

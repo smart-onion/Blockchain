@@ -9,7 +9,9 @@ namespace BlockChain
     /// </summary>
     public class Wallet
     {
-        private int balance = 500;
+        private static int startBalance = 500;
+
+        private int balance;
         private KeyPair keyPair;
         private string publicKey;
 
@@ -33,6 +35,7 @@ namespace BlockChain
         /// </summary>
         public Wallet()
         {
+            this.balance = Wallet.startBalance;
             this.keyPair = new KeyPair();
             this.publicKey = KeyPair.GetPublicKey(keyPair.Keys.ExportParameters(false));
         }
@@ -44,8 +47,10 @@ namespace BlockChain
         /// <param name="amount">The amount to be transferred.</param>
         /// <param name="tranPool">The transaction pool to manage the transactions.</param>
         /// <returns>The created transaction if successful; otherwise, <c>null</c>.</returns>
-        public Transaction? CreateTransaction(string recipient, int amount, TransactionPool tranPool)
+        public Transaction? CreateTransaction(string recipient, int amount, TransactionPool tranPool, Blockchain bc)
         {
+            this.balance = CalculateBalance(bc, this.publicKey);
+
             if (amount > this.balance)
             {
                 Serilog.Log.Information($"Amount: {amount} exceeds current balance: {this.balance}");
@@ -67,6 +72,34 @@ namespace BlockChain
             return transaction;
         }
 
+        public int CalculateBalance(Blockchain bc, string address)
+        {
+            bool hasConductedTransaction = false;
+            int outputTotal = 0;
+
+            for (int i = bc.Chain.Count - 1; i > 0; i--)
+            {
+                var block = bc.Chain[i];
+
+                foreach (var item in block.Data.Output)
+                {
+
+                    if (item.Address == address)
+                    {
+                        outputTotal += item.Amount;
+                    }
+                }
+
+                if (block.Data.Input.Address == address)
+                {
+                    return outputTotal;
+                }
+
+            }
+
+            return startBalance + outputTotal;
+        }
+
         /// <summary>
         /// Signs the given data hash using the wallet's key pair.
         /// </summary>
@@ -75,6 +108,12 @@ namespace BlockChain
         public byte[] Sign(byte[] dataHash)
         {
             return this.keyPair.Keys.SignHash(dataHash);
+        }
+
+
+        public static Wallet BlockchainWallet()
+        {
+            return new Wallet();
         }
 
         /// <summary>

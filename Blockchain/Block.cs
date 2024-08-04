@@ -14,7 +14,7 @@ namespace BlockChain
         private readonly double timestamp;
         private readonly string lastHash;
         private string hash;
-        private string data;
+        private Transaction data;
         private double nonce;
         private int difficulty;
 
@@ -36,7 +36,7 @@ namespace BlockChain
         /// <summary>
         /// Gets the data stored in the block.
         /// </summary>
-        public string Data { get => this.data; }
+        public Transaction Data { get => this.data; }
 
         /// <summary>
         /// Gets the nonce used for mining the block.
@@ -58,7 +58,7 @@ namespace BlockChain
         /// <param name="nonce">The nonce used for mining the block.</param>
         /// <param name="difficulty">The difficulty of mining the block.</param>
         [JsonConstructor]
-        public Block(double timestamp, string lastHash, string hash, string data, double nonce, int difficulty)
+        public Block(double timestamp, string lastHash, string hash, Transaction data, double nonce, int difficulty)
         {
             this.timestamp = timestamp;
             this.lastHash = lastHash;
@@ -72,7 +72,8 @@ namespace BlockChain
         {
             this.timestamp = 0;
             this.lastHash = "-----";
-            this.data = string.Empty;
+            this.data = Transaction.GetGenesisTransaction();
+            
             this.nonce = 0;
             this.difficulty = 4;
             this.hash = GenerateHash(timestamp, lastHash, data, nonce, difficulty);
@@ -93,7 +94,7 @@ namespace BlockChain
         /// <param name="lastBlock">The previous block in the chain.</param>
         /// <param name="data">The data to store in the new block.</param>
         /// <returns>The mined block.</returns>
-        public static Block MineBlock(Block lastBlock, string data)
+        public static Block MineBlock(Block lastBlock, Transaction data)
         {
             double nonce = 0;
             double timestamp;
@@ -126,9 +127,9 @@ namespace BlockChain
         /// <param name="nonce">The nonce used for mining the block.</param>
         /// <param name="difficulty">The difficulty of mining the block.</param>
         /// <returns>The generated hash.</returns>
-        public static string GenerateHash(double timestamp, string lastHash, string data, double nonce, int difficulty)
+        public static string GenerateHash(double timestamp, string lastHash, Transaction data, double nonce, int difficulty)
         {
-            string temp = $"{timestamp}{lastHash}{data}{nonce}{difficulty}";
+            string temp = $"{timestamp}{lastHash}{data.Serialize()}{nonce}{difficulty}";
             using (SHA256 sha256Hash = SHA256.Create())
             {
                 byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(temp));
@@ -149,7 +150,11 @@ namespace BlockChain
         public override bool Equals(object? obj)
         {
             Block? block = obj as Block;
-            return block != null && this.data == block.data && this.timestamp == block.timestamp && this.lastHash == block.lastHash && this.hash == block.hash;
+            return block != null && 
+                this.data.Serialize() == block.data.Serialize() && 
+                this.timestamp == block.timestamp && 
+                this.lastHash == block.lastHash && 
+                this.hash == block.hash;
         }
 
         /// <summary>

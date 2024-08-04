@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace BlockChain
 {
@@ -13,7 +14,7 @@ namespace BlockChain
             /// <summary>
             /// Gets or sets the data for a blockchain block.
             /// </summary>
-            public string data { get; set; }
+            public Transaction data { get; set; }
         }
 
         private struct TransactData
@@ -29,12 +30,26 @@ namespace BlockChain
             public int amount { get; set; }
         }
 
+        private struct WalletData
+        {
+            public int Balance { get; set; }
+            public string PublicKey { get; set; }
+
+            [JsonConstructor]
+            public WalletData(int balance, string publicKey)
+            {
+                this.Balance = balance;
+                this.PublicKey = publicKey;
+            }
+        }
+
         private WebApplication app;
         private Blockchain bc;
         private readonly string url;
         private Wallet wallet;
         private TransactionPool tp;
         private PubSub publisher;
+        private Miner miner;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WebApp"/> class with the specified parameters.
@@ -44,13 +59,14 @@ namespace BlockChain
         /// <param name="url">The URL on which the web application will run.</param>
         /// <param name="wallet">The wallet instance for creating transactions.</param>
         /// <param name="tp">The transaction pool instance for managing transactions.</param>
-        public WebApp(Blockchain bc, PubSub publisher, string url, Wallet wallet, TransactionPool tp)
+        public WebApp(Blockchain bc, PubSub publisher, string url, Wallet wallet, TransactionPool tp, Miner miner)
         {
             this.bc = bc;
             this.publisher = publisher;
             this.url = url;
             this.wallet = wallet;
             this.tp = tp;
+            this.miner = miner;
             WebApplicationBuilder builder = WebApplication.CreateBuilder();
             app = builder.Build();
         }
@@ -74,9 +90,19 @@ namespace BlockChain
                 return JsonSerializer.Serialize(bc);
             });
 
+            app.MapGet("/mine-transaction", () =>
+            {
+                miner.Mine();
+                return JsonSerializer.Serialize(bc);
+            });
+
             app.MapGet("/transactions", () =>
             {
                 return JsonSerializer.Serialize(tp);
+            });
+
+            app.MapGet("/wallet", () => {
+                return JsonSerializer.Serialize(new WalletData(wallet.CalculateBalance(bc, wallet.PublicKey), wallet.PublicKey));
             });
 
             app.MapGet("/public-key", () =>
@@ -103,7 +129,7 @@ namespace BlockChain
             app.MapPost("/transact", async context =>
             {
                 TransactData data = await JsonSerializer.DeserializeAsync<TransactData>(context.Request.Body);
-                Transaction? transaction = wallet.CreateTransaction(data.recipient, data.amount, tp);
+                Transaction? transaction = wallet.CreateTransaction(data.recipient, data.amount, tp, this.bc);
 
                 if (transaction == null)
                 {
