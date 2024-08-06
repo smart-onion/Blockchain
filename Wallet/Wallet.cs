@@ -110,6 +110,28 @@ namespace BlockChain
             return this.keyPair.Keys.SignHash(dataHash);
         }
 
+        public string GetPrivateKey()
+        {
+            return keyPair.Keys.ExportECPrivateKeyPem();
+        }
+
+        public string GetPublicKeyFromPrivate(string privateKeyPem)
+        {
+            using (ECDsa ecdsa = ECDsa.Create())
+            {
+                // Import the private key from PEM format
+                ecdsa.ImportFromPem(privateKeyPem);
+
+                // Export the public key in PEM format
+                var keyParameters = ecdsa.ExportParameters(false);
+                return KeyPair.GetPublicKey(keyParameters);
+            }
+        }
+
+        public void SetPublicKey(string privateKeyPem)
+        {
+            this.publicKey = GetPublicKeyFromPrivate(privateKeyPem);
+        }
 
         public static Wallet BlockchainWallet()
         {

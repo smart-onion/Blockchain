@@ -1,0 +1,168 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Information</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        .block {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #fafafa;
+            box-shadow: 0 0 3px rgba(0,0,0,0.1);
+            overflow-wrap: break-word;
+        }
+
+            .block h2 {
+                margin-top: 0;
+                font-size: 16px;
+                color: #444;
+            }
+
+            .block p {
+                margin: 2px 0;
+                font-size: 14px;
+                color: #555;
+            }
+
+            .block .output, .block .input {
+                margin-top: 5px;
+                padding: 5px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                background: #e9e9e9;
+            }
+
+            .block .item {
+                margin-bottom: 5px;
+                padding: 5px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                background: #fff;
+            }
+
+            .block label {
+                font-weight: bold;
+            }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">BlockChain</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/wallet">Wallet</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/blocks">Current Chain</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/transactions">Transaction Pool</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1>Blockchain Information</h1>
+        <div id="blockchain-info">Loading...</div>
+    </div>
+
+    <script>
+        // Function to format Unix timestamp to a human-readable date
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp / 1000); // Convert nanoseconds to milliseconds
+            return date.toLocaleString(); // Format date to local date and time
+        }
+
+        async function fetchBlockchainData() {
+            try {
+                // Replace with the actual URL or data source
+                const jsonData = {{ chain }}
+
+                const data = jsonData;
+
+                const container = document.getElementById('blockchain-info');
+                container.innerHTML = ''; // Clear loading message
+
+                // Loop through the chain and display each block in reverse order
+                data.Chain.slice().reverse().forEach(block => {
+                    const blockDiv = document.createElement('div');
+                    blockDiv.className = 'block';
+
+                    // Formatting output
+                    const outputItems = block.Data.Output.map(item => `
+                        <div class="item">
+                            <p><strong>Amount:</strong> ${item.Amount}</p>
+                            <p><strong>Address:</strong> ${item.Address}</p>
+                        </div>
+                    `).join('');
+
+                    // Formatting input
+                    const inputItems = `
+                        <div class="item">
+                            <p><strong>Amount:</strong> ${block.Data.Input.Amount}</p>
+                            <p><strong>Address:</strong> ${block.Data.Input.Address || 'null'}</p>
+                            <p><strong>Signature:</strong> ${block.Data.Input.Signature || 'null'}</p>
+                            <p><strong>Timestamp:</strong> ${new Date(block.Data.Input.Timestamp).toLocaleString() }</p>
+                        </div>
+                    `;
+
+                    blockDiv.innerHTML = `
+                        <h2>Block</h2>
+                        <p><strong>ID:</strong> ${block.Data.ID}</p>
+                        <p><strong>Timestamp:</strong> ${new Date(block.Timestamp).toLocaleString()}</p>
+                        <p><strong>Last Hash:</strong> ${block.LastHash}</p>
+                        <p><strong>Hash:</strong> ${block.Hash}</p>
+                        <p><strong>Nonce:</strong> ${block.Nonce}</p>
+                        <p><strong>Difficulty:</strong> ${block.Difficulty}</p>
+                        <div class="output">
+                            <h3>Output:</h3>
+                            ${outputItems || 'None'}
+                        </div>
+                        <div class="input">
+                            <h3>Input:</h3>
+                            ${inputItems}
+                        </div>
+                    `;
+
+                    container.appendChild(blockDiv);
+                });
+
+            } catch (error) {
+                console.error('Error fetching blockchain data:', error);
+                document.getElementById('blockchain-info').textContent = 'Error loading blockchain data.';
+            }
+        }
+
+        window.onload = fetchBlockchainData;
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

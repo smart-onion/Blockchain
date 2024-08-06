@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -24,6 +25,8 @@ namespace BlockChain
             /// </summary>
             public string recipient { get; set; }
 
+            public string privateKey { get; set; }
+
             /// <summary>
             /// Gets or sets the amount of cryptocurrency for a transaction.
             /// </summary>
@@ -35,12 +38,20 @@ namespace BlockChain
             public int Balance { get; set; }
             public string PublicKey { get; set; }
 
+            public string PrivateKey { get; set; }
+
             [JsonConstructor]
-            public WalletData(int balance, string publicKey)
+            public WalletData(int balance, string publicKey, string privateKey)
             {
                 this.Balance = balance;
                 this.PublicKey = publicKey;
+                this.PrivateKey = privateKey;
             }
+        }
+
+        private struct Key
+        {
+            public string PrivateKey { get; set; }
         }
 
         private WebApplication app;
@@ -85,24 +96,45 @@ namespace BlockChain
         /// </summary>
         private void GETRequests()
         {
-            app.MapGet("/blocks", () =>
+            app.MapGet("/", async context =>
             {
-                return JsonSerializer.Serialize(bc);
+                context.Response.Redirect("/wallet");
             });
 
-            app.MapGet("/mine-transaction", () =>
+            app.MapGet("/blocks", context =>
+            {
+                var chain = JsonSerializer.Serialize(bc);
+                context.Response.ContentType = "text/html";
+                return context.Response.WriteAsync(HTMLRender.Render("Chain.html", new { chain }));
+            });
+
+            app.MapGet("/mine-transactions", async context =>
             {
                 miner.Mine();
-                return JsonSerializer.Serialize(bc);
+                context.Response.Redirect("/blocks");
             });
 
-            app.MapGet("/transactions", () =>
+            app.MapGet("/transactions", context =>
             {
-                return JsonSerializer.Serialize(tp);
+                var pool = JsonSerializer.Serialize(tp);
+                context.Response.ContentType = "text/html";
+                return context.Response.WriteAsync(HTMLRender.Render("TransactionPool.html", new { pool }));
             });
 
-            app.MapGet("/wallet", () => {
-                return JsonSerializer.Serialize(new WalletData(wallet.CalculateBalance(bc, wallet.PublicKey), wallet.PublicKey));
+            app.MapGet("/wallet", context => {
+                var wallet = JsonSerializer.Serialize(
+                    new WalletData(
+                        this.wallet.CalculateBalance(bc, this.wallet.PublicKey), 
+                        this.wallet.PublicKey, 
+                        this.wallet.GetPrivateKey())
+                    );
+                context.Response.ContentType = "text/html";
+                return context.Response.WriteAsync(HTMLRender.Render("Wallet.html", new { wallet }));
+            });
+
+            app.MapGet("/set-wallet", context =>
+            {
+                return null;
             });
 
             app.MapGet("/public-key", () =>
@@ -116,17 +148,7 @@ namespace BlockChain
         /// </summary>
         private void POSTRequests()
         {
-            app.MapPost("/mine", async context =>
-            {
-                Data data = await JsonSerializer.DeserializeAsync<Data>(context.Request.Body);
-
-                Block block = this.bc.AddBlock(data.data);
-                await Console.Out.WriteLineAsync($"New block added: {block}");
-                publisher.BroadcastChain();
-                context.Response.Redirect("/blocks");
-            });
-
-            app.MapPost("/transact", async context =>
+            app.MapPost("/create-transaction", async context =>
             {
                 TransactData data = await JsonSerializer.DeserializeAsync<TransactData>(context.Request.Body);
                 Transaction? transaction = wallet.CreateTransaction(data.recipient, data.amount, tp, this.bc);
@@ -140,6 +162,13 @@ namespace BlockChain
                 context.Response.Redirect("/transactions");
             });
 
+            app.MapPost("/set-wallet", async context =>
+            {
+                Key key = await JsonSerializer.DeserializeAsync<Key>(context.Request.Body);
+                wallet.KeyPair.SetECDsa(key.PrivateKey);
+                wallet.SetPublicKey(key.PrivateKey);
+                context.Response.Redirect("/wallet");
+            });
         }
 
         /// <summary>

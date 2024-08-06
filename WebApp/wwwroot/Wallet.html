@@ -1,0 +1,172 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet Information</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            margin-top: 20px;
+        }
+
+        .card {
+            margin-bottom: 20px;
+        }
+
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">BlockChain</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/wallet">Wallet</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/blocks">Current Chain</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/transactions">Transaction Pool</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                Wallet Information
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Balance: <span id="balance"></span></h5>
+                <p class="card-text"><strong>Public Key:</strong> <span id="publicKey"></span></p>
+                <p class="card-text"><strong>Private Key:</strong> <span id="privateKey"></span></p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                Create Transaction
+            </div>
+            <div class="card-body">
+                <form id="createTransactionForm">
+                    <div class="form-group">
+                        <label for="amount">Amount:</label>
+                        <input type="number" class="form-control" id="amount" name="amount" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="recipient">Recipient Address:</label>
+                        <input type="text" class="form-control" id="recipient" name="recipient" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Send Transaction</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                Set Wallet
+            </div>
+            <div class="card-body">
+                <form id="setWalletForm">
+                    <div class="form-group">
+                        <label for="privateKey">Private Key:</label>
+                        <input type="text" class="form-control" id="privateKeyInput" name="PrivateKey" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Set Wallet</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Assuming you have the wallet data available in this variable
+            const walletData = {{wallet}};
+
+            // Insert the wallet data into the HTML
+            document.getElementById("balance").textContent = walletData.Balance;
+            document.getElementById("publicKey").textContent = walletData.PublicKey;
+            document.getElementById("privateKey").textContent = walletData.PrivateKey;
+
+            // Handle form submission for creating a transaction
+            const createTransactionForm = document.getElementById('createTransactionForm');
+            createTransactionForm.addEventListener('submit', async function (event) {
+                event.preventDefault();
+
+                const amount = document.getElementById('amount').value;
+                const recipient = document.getElementById('recipient').value;
+
+                const transactionData = {
+                    amount: parseInt(amount),
+                    recipient: recipient
+                };
+
+                try {
+                    const response = await fetch('/create-transaction', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(transactionData)
+                    });
+
+                    if (response.ok) {
+                        alert('Transaction created successfully!');
+                    } else {
+                        alert('Failed to create transaction.');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred while creating the transaction.');
+                }
+            });
+
+            // Handle form submission for setting the wallet
+            const setWalletForm = document.getElementById('setWalletForm');
+            setWalletForm.addEventListener('submit', async function (event) {
+                event.preventDefault();
+
+                const PrivateKey = document.getElementById('privateKeyInput').value;
+
+                const walletData = {
+                    PrivateKey: PrivateKey
+                };
+
+                try {
+                    const response = await fetch('/set-wallet', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(walletData)
+                    });
+
+                    if (response.ok) {
+                        alert('Wallet set successfully!');
+                    } else {
+                        alert('Failed to set wallet.');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred while setting the wallet.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

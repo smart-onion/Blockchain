@@ -27,7 +27,10 @@ namespace BlockChain
             }
         }
 
-        static readonly ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("redis-15621.c1.us-east1-2.gce.redns.redis-cloud.com:15621,password=nEQpXj3tUyY1MtqhuiCWfYkyiXlwIKE8");
+        static readonly ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(
+            //
+            "redis-15621.c1.us-east1-2.gce.redns.redis-cloud.com:15621,password=nEQpXj3tUyY1MtqhuiCWfYkyiXlwIKE8"
+            );
         private ISubscriber publisher = redis.GetSubscriber();
         private ISubscriber subscriber = redis.GetSubscriber();
         private Blockchain bc;

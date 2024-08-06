@@ -9,7 +9,7 @@ namespace BlockChain
     /// </summary>
     public class Block
     {
-        private const long MINE_RATE = 3000 * 10000;
+        private const long MINE_RATE = 3000;
 
         private readonly double timestamp;
         private readonly string lastHash;
@@ -103,7 +103,7 @@ namespace BlockChain
             do
             {
                 nonce++;
-                timestamp = DateTime.Now.Ticks / TimeSpan.TicksPerMicrosecond;
+                timestamp = (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds;
                 difficulty = AdjustDifficulty(lastBlock, timestamp);
                 hash = GenerateHash(timestamp, lastBlock.hash, data, nonce, difficulty);
             } while (hash.Substring(0, difficulty) != new string('0', difficulty));

@@ -38,10 +38,5 @@ namespace BlockChain
             
             transactionPool.Clear();
         }
-
-        private int GetReward()
-        {
-            return 1;
-        }
     }
 }

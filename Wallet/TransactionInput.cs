@@ -51,7 +51,7 @@ namespace BlockChain
 
         public TransactionInput(int amount, string address, byte[] signature)
         {
-            this.timestamp = DateTime.Now.Ticks / TimeSpan.TicksPerMicrosecond;
+            this.timestamp = (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds;
             this.amount = amount;
             this.address = address;
             this.signature = signature;

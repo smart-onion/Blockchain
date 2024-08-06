@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlockChain</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .transaction {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+            .transaction h3 {
+                margin-top: 0;
+                font-size: 1.5em;
+                color: #007BFF;
+            }
+
+            .transaction p {
+                margin: 8px 0;
+            }
+
+            .transaction .amount, .transaction .address, .transaction .signature, .transaction .timestamp {
+                font-weight: bold;
+            }
+
+            .transaction .input {
+                margin-bottom: 15px;
+                padding: 10px;
+                border: 1px solid #e0e0e0;
+                border-radius: 5px;
+                background-color: #f9f9f9;
+            }
+
+            .transaction .output {
+                border-top: 1px solid #e0e0e0;
+                padding-top: 10px;
+                margin-top: 10px;
+            }
+
+        .button-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+            button:hover {
+                background-color: #0056b3;
+            }
+
+            button:focus {
+                outline: none;
+            }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">BlockChain</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/wallet">Wallet</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/blocks">Current Chain</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/transactions">Transaction Pool</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1>Transaction Pool</h1>
+        <div id="transaction-pool"></div>
+        <div class="button-container">
+            <form id="transaction-form" method="GET" action="/mine-transactions">
+                <button type="submit">Mine Transactions</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        const transactionPoolData = {{pool}};
+
+        function displayTransactionPool() {
+            const container = document.getElementById('transaction-pool');
+            container.innerHTML = '';
+
+            for (const transactionID in transactionPoolData.Transactions) {
+                const transaction = transactionPoolData.Transactions[transactionID];
+                const transactionDiv = document.createElement('div');
+                transactionDiv.className = 'transaction';
+
+                const outputs = transaction.Output.map(output => `
+                    <p class="output">
+                        <span class="amount">Amount: ${output.Amount}</span>
+                        <br>
+                        <span class="address">Address: ${output.Address}</span>
+                    </p>
+                `).join('');
+
+                transactionDiv.innerHTML = `
+                    <h3>Transaction ID: ${transaction.ID}</h3>
+                    <div class="input">
+                        <p class="amount">Input Amount: ${transaction.Input.Amount}</p>
+                        <p class="address">Input Address: ${transaction.Input.Address}</p>
+                        <p class="signature">Input Signature: ${transaction.Input.Signature}</p>
+                        <p class="timestamp">Input Timestamp: ${new Date(transaction.Input.Timestamp).toLocaleString()}</p>
+                    </div>
+                    ${outputs}
+                `;
+
+                container.appendChild(transactionDiv);
+            }
+        }
+
+        // Display the transaction pool on page load
+        window.onload = displayTransactionPool;
+    </script>
+</body>
+</html>

@@ -44,6 +44,10 @@
               "target": "Package",
               "version": "[8.0.1, )"
             },
+            "Scriban": {
+              "target": "Package",
+              "version": "[5.10.0, )"
+            },
             "Serilog": {
               "target": "Package",
               "version": "[4.0.1, )"
@@ -63,14 +67,6 @@
             "System.Configuration.ConfigurationManager": {
               "target": "Package",
               "version": "[8.0.0, )"
-            },
-            "WebSocket4Net": {
-              "target": "Package",
-              "version": "[0.15.2, )"
-            },
-            "WebSocketSharp": {
-              "target": "Package",
-              "version": "[1.0.3-rc11, )"
             }
           },
           "imports": [

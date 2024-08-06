@@ -58,14 +58,11 @@ C:\Users\fff\Documents\GitHub\Blockchain\bin\Debug\net8.0\Pipelines.Sockets.Unof
 C:\Users\fff\Documents\GitHub\Blockchain\bin\Debug\net8.0\Serilog.dll
 C:\Users\fff\Documents\GitHub\Blockchain\bin\Debug\net8.0\Serilog.Sinks.Console.dll
 C:\Users\fff\Documents\GitHub\Blockchain\bin\Debug\net8.0\StackExchange.Redis.dll
-C:\Users\fff\Documents\GitHub\Blockchain\bin\Debug\net8.0\SuperSocket.ClientEngine.dll
 C:\Users\fff\Documents\GitHub\Blockchain\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
 C:\Users\fff\Documents\GitHub\Blockchain\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\Users\fff\Documents\GitHub\Blockchain\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
 C:\Users\fff\Documents\GitHub\Blockchain\bin\Debug\net8.0\System.Configuration.ConfigurationManager.dll
 C:\Users\fff\Documents\GitHub\Blockchain\bin\Debug\net8.0\System.Security.Cryptography.ProtectedData.dll
-C:\Users\fff\Documents\GitHub\Blockchain\bin\Debug\net8.0\WebSocket4Net.dll
-C:\Users\fff\Documents\GitHub\Blockchain\bin\Debug\net8.0\websocket-sharp.dll
 C:\Users\fff\Documents\GitHub\Blockchain\obj\Debug\net8.0\BC.NET.csproj.AssemblyReference.cache
 C:\Users\fff\Documents\GitHub\Blockchain\obj\Debug\net8.0\BC.NET.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\fff\Documents\GitHub\Blockchain\obj\Debug\net8.0\BC.NET.AssemblyInfoInputs.cache
@@ -89,3 +86,4 @@ C:\Users\fff\Documents\GitHub\Blockchain\obj\Debug\net8.0\BC.NET.xml
 C:\Users\fff\Documents\GitHub\Blockchain\obj\Debug\net8.0\BC.NET.pdb
 C:\Users\fff\Documents\GitHub\Blockchain\obj\Debug\net8.0\BC.NET.genruntimeconfig.cache
 C:\Users\fff\Documents\GitHub\Blockchain\obj\Debug\net8.0\ref\BC.NET.dll
+C:\Users\fff\Documents\GitHub\Blockchain\bin\Debug\net8.0\Scriban.dll

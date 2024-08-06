@@ -94,10 +94,11 @@ namespace BlockChain
                 return false;
             }
 
-            onSuccess?.Invoke();
-
             Serilog.Log.Information("Replacing blockchain with new chain.");
             this.chain = newChain.chain;
+
+            onSuccess?.Invoke();
+
             return true;
         }
 

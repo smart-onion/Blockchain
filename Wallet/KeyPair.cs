@@ -65,6 +65,11 @@ namespace BlockChain
             };
         }
 
+        public void SetECDsa(string privateKeyPem)
+        {
+            keys.ImportFromPem(privateKeyPem);
+        }
+
         /// <summary>
         /// Verifies a digital signature using the given public key and data hash.
         /// </summary>
