@@ -28,6 +28,9 @@ namespace BlockChain
         /// </summary>
         public byte[] Signature { get => this.signature; }
 
+        /// <summary>
+        /// Gets the timestamp associated with the object, representing the time in milliseconds since the Unix epoch.
+        /// </summary>
         public double Timestamp { get => this.timestamp; }
         /// <summary>
         /// Initializes a new instance of the <see cref="TransactionInput"/> class.
@@ -49,6 +52,15 @@ namespace BlockChain
             this.signature = signature;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TransactionInput"/> class with the specified amount, address, and signature.
+        /// </summary>
+        /// <param name="amount">The amount of cryptocurrency being spent in the transaction input.</param>
+        /// <param name="address">The address from which the cryptocurrency is being spent.</param>
+        /// <param name="signature">The signature validating the transaction input.</param>
+        /// <remarks>
+        /// The timestamp is set to the current time in milliseconds since the Unix epoch (January 1, 1970).
+        /// </remarks>
         public TransactionInput(int amount, string address, byte[] signature)
         {
             this.timestamp = (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds;

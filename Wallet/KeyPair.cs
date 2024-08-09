@@ -65,6 +65,10 @@ namespace BlockChain
             };
         }
 
+        /// <summary>
+        /// Sets the ECDsa key pair by importing a private key from PEM format.
+        /// </summary>
+        /// <param name="privateKeyPem">The private key in PEM format to import into the ECDsa key pair.</param>
         public void SetECDsa(string privateKeyPem)
         {
             keys.ImportFromPem(privateKeyPem);

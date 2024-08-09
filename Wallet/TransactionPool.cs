@@ -11,11 +11,10 @@ namespace BlockChain
     {
         private Dictionary<string, Transaction> transactions;
 
-        public Dictionary<string, Transaction> Transactions => this.transactions;
         /// <summary>
-        /// Gets the list of transactions in the pool.
+        /// Gets the dictionary of transactions in the pool.
         /// </summary>
-        //public List<Transaction> Transactions => this.transactions;
+        public Dictionary<string, Transaction> Transactions => this.transactions;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TransactionPool"/> class.
@@ -34,9 +33,12 @@ namespace BlockChain
             this.transactions[transaction.ID] = transaction;
         }
 
-       public List<Transaction> ValidTransactions()
+        /// <summary>
+        /// Retrieves a list of valid transactions from the transaction pool.
+        /// </summary>
+        /// <returns>A list of <see cref="Transaction"/> objects that have been verified as valid.</returns>
+        public List<Transaction> ValidTransactions()
         {
-
             List<Transaction> validPool = new List<Transaction>();
 
             foreach (var transaction in this.transactions.Values)
@@ -49,14 +51,21 @@ namespace BlockChain
             return validPool;
         }
 
+        /// <summary>
+        /// Clears all transactions from the transaction pool.
+        /// </summary>
         public void Clear()
         {
             this.transactions.Clear();
         }
 
+        /// <summary>
+        /// Clears transactions from the transaction pool that are present in the specified blockchain.
+        /// </summary>
+        /// <param name="bc">The blockchain instance whose blocks' transactions will be removed from the pool.</param>
         public void Clear(Blockchain bc)
         {
-            foreach (Block block in bc.Chain)
+             foreach (Block block in bc.Chain)
             {
                 if (this.transactions.ContainsKey(block.Data.ID))
                 {
@@ -64,6 +73,7 @@ namespace BlockChain
                 }
             }
         }
+
 
         /// <summary>
         /// Retrieves a transaction from the pool based on the address.

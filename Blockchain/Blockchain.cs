@@ -14,6 +14,9 @@ namespace BlockChain
     /// </summary>
     public class Blockchain : ISendable
     {
+        /// <summary>
+        /// Represents a method that will handle a successful operation or event.
+        /// </summary>
         public delegate void SuccessHandler();
         private List<Block> chain;
 

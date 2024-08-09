@@ -52,6 +52,10 @@ namespace BlockChain
             this.output = output;
         }
 
+        /// <summary>
+        /// Creates and returns the genesis transaction, which is the initial transaction in the blockchain.
+        /// </summary>
+        /// <returns>A <see cref="Transaction"/> object representing the genesis transaction with a predefined ID.</returns>
         public static Transaction GetGenesisTransaction()
         {
             Transaction tr = new Transaction();
@@ -90,7 +94,6 @@ namespace BlockChain
         /// <param name="recipient">The recipient's address.</param>
         /// <param name="amount">The amount to be transferred.</param>
         /// <returns>The new transaction if successful; otherwise, <c>null</c>.</returns>
-
         public static Transaction? NewTransaction(Wallet senderWallet, string recipient, int amount)
         {
             Transaction transaction = new Transaction();
@@ -106,6 +109,13 @@ namespace BlockChain
             return transaction;
         }
 
+        /// <summary>
+        /// Creates a reward transaction that awards a specified amount to the miner's wallet.
+        /// </summary>
+        /// <param name="minerWallet">The wallet of the miner who will receive the reward.</param>
+        /// <param name="blockchainWallet">The blockchain's wallet used to sign the transaction.</param>
+        /// <param name="amount">The amount of reward to be given to the miner.</param>
+        /// <returns>A <see cref="Transaction"/> object representing the reward transaction, signed by the blockchain's wallet.</returns>
         public static Transaction RewardTransaction(Wallet minerWallet, Wallet blockchainWallet, int amount)
         {
             Transaction transaction = new Transaction();

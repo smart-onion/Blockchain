@@ -9,7 +9,7 @@ namespace BlockChain
     /// </summary>
     public class Wallet
     {
-        private static int startBalance = 500;
+        private static int startBalance = 0;
 
         private int balance;
         private KeyPair keyPair;
@@ -72,9 +72,19 @@ namespace BlockChain
             return transaction;
         }
 
+        /// <summary>
+        /// Calculates the balance for a given address by traversing the blockchain.
+        /// </summary>
+        /// <param name="bc">The blockchain instance.</param>
+        /// <param name="address">The address for which to calculate the balance.</param>
+        /// <returns>
+        /// The calculated balance for the specified address.
+        /// If the address has conducted any transaction as an input, the balance is
+        /// returned immediately as the sum of the output amounts associated with the address.
+        /// Otherwise, the balance is calculated as the sum of the outputs and the starting balance.
+        /// </returns>
         public int CalculateBalance(Blockchain bc, string address)
         {
-            bool hasConductedTransaction = false;
             int outputTotal = 0;
 
             for (int i = bc.Chain.Count - 1; i > 0; i--)
@@ -110,11 +120,20 @@ namespace BlockChain
             return this.keyPair.Keys.SignHash(dataHash);
         }
 
+        /// <summary>
+        /// Retrieves the private key in PEM format from the key pair.
+        /// </summary>
+        /// <returns>The private key as a PEM formatted string.</returns>
         public string GetPrivateKey()
         {
             return keyPair.Keys.ExportECPrivateKeyPem();
         }
 
+        /// <summary>
+        /// Derives the public key from the provided private key in PEM format.
+        /// </summary>
+        /// <param name="privateKeyPem">The private key in PEM format.</param>
+        /// <returns>The public key as a PEM formatted string.</returns>
         public string GetPublicKeyFromPrivate(string privateKeyPem)
         {
             using (ECDsa ecdsa = ECDsa.Create())
@@ -128,11 +147,19 @@ namespace BlockChain
             }
         }
 
+        /// <summary>
+        /// Sets the public key for the wallet by deriving it from the provided private key in PEM format.
+        /// </summary>
+        /// <param name="privateKeyPem">The private key in PEM format.</param>
         public void SetPublicKey(string privateKeyPem)
         {
             this.publicKey = GetPublicKeyFromPrivate(privateKeyPem);
         }
 
+        /// <summary>
+        /// Creates and returns a new blockchain wallet instance.
+        /// </summary>
+        /// <returns>A new instance of the <see cref="Wallet"/> class.</returns>
         public static Wallet BlockchainWallet()
         {
             return new Wallet();

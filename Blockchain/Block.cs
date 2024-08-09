@@ -68,6 +68,14 @@ namespace BlockChain
             this.difficulty = difficulty;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Block"/> class with default values.
+        /// </summary>
+        /// <remarks>
+        /// This constructor is used to create the genesis block, which serves as the first block in the blockchain.
+        /// The genesis block has a timestamp of 0, a placeholder last hash, and a genesis transaction as its data.
+        /// The nonce is set to 0, the difficulty level is set to 4, and the hash is generated based on these values.
+        /// </remarks>
         private Block()
         {
             this.timestamp = 0;
@@ -103,7 +111,7 @@ namespace BlockChain
             do
             {
                 nonce++;
-                timestamp = (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds;
+                timestamp = (DateTime.UtcNow - new DateTime(2024, 1, 1)).TotalMilliseconds;
                 difficulty = AdjustDifficulty(lastBlock, timestamp);
                 hash = GenerateHash(timestamp, lastBlock.hash, data, nonce, difficulty);
             } while (hash.Substring(0, difficulty) != new string('0', difficulty));
@@ -111,6 +119,15 @@ namespace BlockChain
             return new Block(timestamp, lastBlock.hash, hash, data, nonce, difficulty);
         }
 
+        /// <summary>
+        /// Adjusts the mining difficulty for the current block based on the time taken to mine the last block.
+        /// </summary>
+        /// <param name="lastBlock">The last mined block, used to compare the mining time.</param>
+        /// <param name="currentTime">The current timestamp used to evaluate the time difference.</param>
+        /// <returns>
+        /// The adjusted difficulty level, which increases if the mining time was quicker than the target,
+        /// and decreases if it was slower. The difficulty is clamped between a minimum of 3 and a maximum of 6.
+        /// </returns>
         private static int AdjustDifficulty(Block lastBlock, double currentTime)
         {
             int diff = lastBlock.difficulty;
